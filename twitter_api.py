@@ -1,3 +1,4 @@
+import datetime, pytz, time
 import json
 import os
 import sys
@@ -11,7 +12,8 @@ def lambda_handler(event, lambda_context) -> None:
     with TwitterApi() as ta:
         user_id_list_obj = user_list.UserList()
         user_id_list = user_id_list_obj.ids()
-        print(str(user_id_list))
+        user_id = user_id_list[0]
+        ta.get_tweet(user_id)
         sys.exit()
 
 class TwitterApi():
@@ -46,10 +48,40 @@ class TwitterApi():
         url = self.USER_TIMELINE_URL + user_id + "&count=" + str(nnx)
         array_aa = []
         response, data = self.client.request(url)
-        json_str = data.decode('utf-8')
-        array_aa = json.loads(json_str)
+        if response.status == 200:
+            json_str = data.decode('utf-8')
+            array_aa = json.loads(json_str)
 
-        print(array_aa)
+            for tweet_info in array_aa:
+                print(self.change_time(tweet_info['created_at']))
+                print(tweet_info['text'])
+
+    def change_time(self, created_at):
+        """[summary]
+
+        Args:
+            created_at ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        # time.struct_timeに変換
+        st = time.strptime(created_at, '%a %b %d %H:%M:%S +0000 %Y')
+        # datetimeに変換(timezoneを付与)
+        utc_time = datetime.datetime(
+            st.tm_year,
+            st.tm_mon,
+            st.tm_mday,
+            st.tm_hour,
+            st.tm_min,
+            st.tm_sec,
+            tzinfo=datetime.timezone.utc
+        )
+        # 日本時間に変換
+        jst_time = utc_time.astimezone(pytz.timezone("Asia/Tokyo"))
+        # 文字列で返す
+        str_time = jst_time.strftime("%Y-%m-%d %H:%M:%S")
+        return str_time
 
 if __name__ == '__main__':
      lambda_handler({}, '')
