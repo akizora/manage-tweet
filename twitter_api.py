@@ -4,9 +4,9 @@ import os
 import sys
 from os.path import join, dirname
 from dotenv import load_dotenv
-from requests_oauthlib import OAuth1Session
-import oauth2 as oauth
-import user_list
+# from requests_oauthlib import OAuth1Session
+# import oauth2 as oauth
+# import user_list
 
 def lambda_handler(event, lambda_context) -> None:
     with TwitterApi() as ta:
@@ -84,4 +84,4 @@ class TwitterApi():
         return str_time
 
 if __name__ == '__main__':
-     lambda_handler({}, '')
+    lambda_handler({}, '')
