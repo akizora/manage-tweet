@@ -124,3 +124,10 @@ class Spreadsheet_Manipulate():
         #         target_job_urls.append(job_url)
         # print(target_job_urls)
         # return target_job_urls
+
+    def update_speadSheet(self, vacancies_url: dict, applicate_number: int):
+        """スプレッドシート更新"""
+        spreadsheetid = self.SPREADSHEET_ID
+        sheet_name = self.PREF_NAME
+        manipulate = Spreadsheet_Manipulate(spreadsheetid)
+        manipulate.pd_change(sheet_name, vacancies_url, applicate_number)
