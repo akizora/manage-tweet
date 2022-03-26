@@ -101,3 +101,26 @@ class Spreadsheet_Manipulate():
         set_with_dataframe(update_ws, dataframe,
         resize=False, include_index=True)
 
+
+    def get_data(self) -> list:
+        scope = [
+            'https://spreadsheets.google.com/feeds',
+            'https://www.googleapis.com/auth/drive'
+        ]
+        credentials     = ServiceAccountCredentials.from_json_keyfile_name(self.JSON_PATH, scope)
+        service         = build('sheets', 'v4', cache_discovery=False, credentials=credentials)
+        spread_sheet_id = self.SPREADSHEET_ID
+        # range_name      = "埼玉県_URL!A:B"
+        range_name      = self.RANGE_NAME
+        result          = service.spreadsheets().values().get(spreadsheetId=spread_sheet_id, range=range_name).execute()	
+        spread_values   = result.get('values')
+        
+        return spread_values
+        # target_job_urls = []
+        # print(spread_values)
+        # for spread_value in spread_values:
+        #     if(spread_value[1] == "未転記"):
+        #         job_url = spread_value[0]
+        #         target_job_urls.append(job_url)
+        # print(target_job_urls)
+        # return target_job_urls
