@@ -11,8 +11,11 @@ from gspread_dataframe import get_as_dataframe, set_with_dataframe
 
 
 class Spreadsheet_Manipulate():
-    def __init__(self, spreadsheet_id):
+    def __init__(self, spreadsheet_id, json_path):
         self.spreadsheet_id = spreadsheet_id
+        self.SPREADSHEET_ID = spreadsheet_id
+        self.JSON_PATH      = json_path
+
 
     def make_spreadsheet_format(self, worksheetName, array2D, appendNumber):
         """スプレッドシートのオブジェクトを取得する."""
@@ -102,7 +105,7 @@ class Spreadsheet_Manipulate():
         resize=False, include_index=True)
 
 
-    def get_data(self) -> list:
+    def get_data(self, range) -> list:
         scope = [
             'https://spreadsheets.google.com/feeds',
             'https://www.googleapis.com/auth/drive'
@@ -111,8 +114,7 @@ class Spreadsheet_Manipulate():
         service         = build('sheets', 'v4', cache_discovery=False, credentials=credentials)
         spread_sheet_id = self.SPREADSHEET_ID
         # range_name      = "埼玉県_URL!A:B"
-        range_name      = self.RANGE_NAME
-        result          = service.spreadsheets().values().get(spreadsheetId=spread_sheet_id, range=range_name).execute()	
+        result          = service.spreadsheets().values().get(spreadsheetId=spread_sheet_id, range=range).execute()	
         spread_values   = result.get('values')
         
         return spread_values

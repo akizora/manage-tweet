@@ -4,12 +4,16 @@ import os
 import sys
 from os.path import join, dirname
 from dotenv import load_dotenv
-# from requests_oauthlib import OAuth1Session
-# import oauth2 as oauth
+from spread_tranceform import Spreadsheet_Manipulate
+from requests_oauthlib import OAuth1Session
+import oauth2 as oauth
 # import user_list
 
 def lambda_handler(event, lambda_context) -> None:
     with TwitterApi() as ta:
+        ta.get_tweet_data()
+        sys.exit()
+
         user_id_list_obj = user_list.UserList()
         user_id_list = user_id_list_obj.ids()
         user_id = user_id_list[0]
@@ -22,15 +26,17 @@ class TwitterApi():
         load_dotenv(verbose=True)
         dotenv_path = join(dirname(__file__), '.env')
         load_dotenv(dotenv_path)
-        self.CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
-        self.CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
-        self.ACCESS_TOKEN = os.environ.get("ACCESS_TOKEN")
-        self.ACCESS_TOKEN_SECRET = os.environ.get("ACCESS_TOKEN_SECRET")
-        self.consumer = oauth.Consumer(key=self.CONSUMER_KEY, secret=self.CONSUMER_SECRET)
-        self.access_token = oauth.Token(key=self.ACCESS_TOKEN, secret=self.ACCESS_TOKEN_SECRET)
-        self.client = oauth.Client(self.consumer, self.access_token)
-
-        self.USER_TIMELINE_URL = "https://api.twitter.com/1.1/statuses/user_timeline.json?user_id="
+        self.CONSUMER_KEY           = os.environ.get("CONSUMER_KEY")
+        self.CONSUMER_SECRET        = os.environ.get("CONSUMER_SECRET")
+        self.ACCESS_TOKEN           = os.environ.get("ACCESS_TOKEN")
+        self.ACCESS_TOKEN_SECRET    = os.environ.get("ACCESS_TOKEN_SECRET")
+        self.SPREADSHEET_ID         = os.environ.get("SPREADSHEET_ID")
+        self.SHEET_RANGE            = os.environ.get("SHEET_RANGE")
+        self.JSON_PATH              = os.environ.get("JSON_PATH")
+        self.consumer               = oauth.Consumer(key=self.CONSUMER_KEY, secret=self.CONSUMER_SECRET)
+        self.access_token           = oauth.Token(key=self.ACCESS_TOKEN, secret=self.ACCESS_TOKEN_SECRET)
+        self.client                 = oauth.Client(self.consumer, self.access_token)
+        self.USER_TIMELINE_URL      = "https://api.twitter.com/1.1/statuses/user_timeline.json?user_id="
 
     def __enter__(self):
         return self
@@ -82,6 +88,13 @@ class TwitterApi():
         # 文字列で返す
         str_time = jst_time.strftime("%Y-%m-%d %H:%M:%S")
         return str_time
+    
+    def get_tweet_data(self):
+        path = r"./custom-range-240307-e9bc25737fca.json"
+        sm = Spreadsheet_Manipulate(self.SPREADSHEET_ID, path)
+        data = sm.get_data(self.SHEET_RANGE)
+        print('+++++++++')
+        print(data)
 
 if __name__ == '__main__':
     lambda_handler({}, '')
